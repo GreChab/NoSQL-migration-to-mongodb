@@ -2,7 +2,9 @@ package ua.epam.mishchenko.ticketbooking.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import ua.epam.mishchenko.ticketbooking.dto.UserAccountDTO;
 import ua.epam.mishchenko.ticketbooking.model.UserAccount;
 import ua.epam.mishchenko.ticketbooking.repository.UserAccountRepository;
 import ua.epam.mishchenko.ticketbooking.repository.UserRepository;
@@ -10,6 +12,7 @@ import ua.epam.mishchenko.ticketbooking.service.UserAccountService;
 
 import java.math.BigDecimal;
 
+@Profile(value = "postgres")
 @Service
 public class UserAccountServiceImpl implements UserAccountService {
 
@@ -25,7 +28,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     }
 
     @Override
-    public UserAccount refillAccount(long userId, BigDecimal money) {
+    public UserAccountDTO refillAccount(long userId, BigDecimal money) {
         log.info("Refilling user account for user with id: {}", userId);
         try {
             thrownRuntimeExceptionIfMoneyLessZero(money);
@@ -33,7 +36,7 @@ public class UserAccountServiceImpl implements UserAccountService {
             UserAccount userAccount = getUserAccountAndRefillIfNotExistCreate(userId, money);
             userAccount = userAccountRepository.save(userAccount);
             log.info("The user account with user id {} successfully refilled", userId);
-            return userAccount;
+            return new UserAccountDTO(userAccount.getMoney());
         } catch (RuntimeException e) {
             log.warn("Can not to refill account with user id: {}", userId);
             return null;

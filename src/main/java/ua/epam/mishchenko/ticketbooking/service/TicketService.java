@@ -1,9 +1,9 @@
 package ua.epam.mishchenko.ticketbooking.service;
 
+import ua.epam.mishchenko.ticketbooking.dto.EventDto;
+import ua.epam.mishchenko.ticketbooking.dto.TicketDto;
+import ua.epam.mishchenko.ticketbooking.dto.UserDto;
 import ua.epam.mishchenko.ticketbooking.model.Category;
-import ua.epam.mishchenko.ticketbooking.model.Event;
-import ua.epam.mishchenko.ticketbooking.model.Ticket;
-import ua.epam.mishchenko.ticketbooking.model.User;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public interface TicketService {
      * @param category the category
      * @return the ticket
      */
-    Ticket bookTicket(long userId, long eventId, int place, Category category);
+    TicketDto bookTicket(String userId, String eventId, int place, Category category);
 
     /**
      * Gets booked tickets.
@@ -31,7 +31,7 @@ public interface TicketService {
      * @param pageNum  the page num
      * @return the booked tickets
      */
-    List<Ticket> getBookedTickets(User user, int pageSize, int pageNum);
+    List<TicketDto> getBookedTickets(UserDto user, int pageSize, int pageNum);
 
     /**
      * Gets booked tickets.
@@ -41,7 +41,7 @@ public interface TicketService {
      * @param pageNum  the page num
      * @return the booked tickets
      */
-    List<Ticket> getBookedTickets(Event event, int pageSize, int pageNum);
+    List<TicketDto> getBookedTickets(EventDto event, int pageSize, int pageNum);
 
     /**
      * Cancel ticket boolean.
@@ -49,5 +49,5 @@ public interface TicketService {
      * @param ticketId the ticket id
      * @return the boolean
      */
-    boolean cancelTicket(long ticketId);
+    boolean cancelTicket(String ticketId);
 }

@@ -2,9 +2,11 @@ package ua.epam.mishchenko.ticketbooking.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import ua.epam.mishchenko.ticketbooking.dto.UserDto;
 import ua.epam.mishchenko.ticketbooking.model.User;
 import ua.epam.mishchenko.ticketbooking.repository.UserRepository;
 import ua.epam.mishchenko.ticketbooking.service.UserService;
@@ -15,6 +17,7 @@ import java.util.List;
 /**
  * The type User service.
  */
+@Profile(value = "postgres")
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -39,13 +42,13 @@ public class UserServiceImpl implements UserService {
      * @return the user by id
      */
     @Override
-    public User getUserById(long userId) {
+    public UserDto getUserById(String userId) {
         log.info("Finding a user by id: {}", userId);
         try {
-            User user = userRepository.findById(userId)
+            User user = userRepository.findById(Long.parseLong(userId))
                     .orElseThrow(() -> new RuntimeException("Can not to get a user by id: " + userId));
             log.info("The user with id {} successfully found ", userId);
-            return user;
+            return UserDto.fromUserToUserDto(user);
         } catch (RuntimeException e) {
             log.warn("Can not to get an user by id: " + userId);
             return null;
@@ -59,7 +62,7 @@ public class UserServiceImpl implements UserService {
      * @return the user by email
      */
     @Override
-    public User getUserByEmail(String email) {
+    public UserDto getUserByEmail(String email) {
         log.info("Finding a user by email: {}", email);
         try {
             if (email.isEmpty()) {
@@ -69,7 +72,7 @@ public class UserServiceImpl implements UserService {
             User user = userRepository.getByEmail(email)
                     .orElseThrow(() -> new RuntimeException("Can not to get an user by email: " + email));
             log.info("The user with email {} successfully found ", email);
-            return user;
+            return UserDto.fromUserToUserDto(user);
         } catch (RuntimeException e) {
             log.warn("Can not to get an user by email: " + email);
             return null;
@@ -85,7 +88,7 @@ public class UserServiceImpl implements UserService {
      * @return the users by name
      */
     @Override
-    public List<User> getUsersByName(String name, int pageSize, int pageNum) {
+    public List<UserDto> getUsersByName(String name, int pageSize, int pageNum) {
         log.info("Finding all users by name {} with page size {} and number of page {}", name, pageSize, pageNum);
         try {
             if (name.isEmpty()) {
@@ -98,7 +101,9 @@ public class UserServiceImpl implements UserService {
             }
             log.info("All users successfully found by name {} with page size {} and number of page {}",
                     name, pageSize, pageNum);
-            return usersByName.getContent();
+            return usersByName.getContent().stream()
+                    .map(UserDto::fromUserToUserDto)
+                    .toList();
         } catch (RuntimeException e) {
             log.warn("Can not to find a list of users by name '{}'", name, e);
             return new ArrayList<>();
@@ -112,7 +117,7 @@ public class UserServiceImpl implements UserService {
      * @return the user
      */
     @Override
-    public User createUser(User user) {
+    public UserDto createUser(UserDto user) {
         log.info("Start creating an user: {}", user);
         try {
             if (isUserNull(user)) {
@@ -122,20 +127,20 @@ public class UserServiceImpl implements UserService {
             if (userExistsByEmail(user)) {
                 log.debug("This email already exists");
             }
-            user = userRepository.save(user);
-            log.info("Successfully creation of the user: {}", user);
-            return user;
+            var savedUser = userRepository.save(UserDto.fromUserDtotoSqlUser(user));
+            log.info("Successfully updating of the user: {}", user);
+            return UserDto.fromUserToUserDto(savedUser);
         } catch (RuntimeException e) {
             log.warn("Can not to create an user: {}", user, e);
             return null;
         }
     }
 
-    private boolean userExistsById(User user) {
-        return userRepository.existsById(user.getId());
+    private boolean userExistsById(UserDto user) {
+        return userRepository.existsById(Long.parseLong(user.getId()));
     }
 
-    private boolean userExistsByEmail(User user) {
+    private boolean userExistsByEmail(UserDto user) {
         return userRepository.existsByEmail(user.getEmail());
     }
 
@@ -145,7 +150,7 @@ public class UserServiceImpl implements UserService {
      * @param user the user
      * @return the boolean
      */
-    private boolean isUserNull(User user) {
+    private boolean isUserNull(UserDto user) {
         return user == null;
     }
 
@@ -156,7 +161,7 @@ public class UserServiceImpl implements UserService {
      * @return the user
      */
     @Override
-    public User updateUser(User user) {
+    public UserDto updateUser(UserDto user) {
         log.info("Start updating an user: {}", user);
         try {
             if (isUserNull(user)) {
@@ -169,9 +174,9 @@ public class UserServiceImpl implements UserService {
             if (userExistsByEmail(user)) {
                 throw new RuntimeException("This email already exists");
             }
-            user = userRepository.save(user);
+            var savedUser = userRepository.save(UserDto.fromUserDtotoSqlUser(user));
             log.info("Successfully updating of the user: {}", user);
-            return user;
+            return UserDto.fromUserToUserDto(savedUser);
         } catch (RuntimeException e) {
             log.warn("Can not to update an user: {}", user, e);
             return null;
@@ -185,10 +190,10 @@ public class UserServiceImpl implements UserService {
      * @return the boolean
      */
     @Override
-    public boolean deleteUser(long userId) {
+    public boolean deleteUser(String userId) {
         log.info("Start deleting an user with id: {}", userId);
         try {
-            userRepository.deleteById(userId);
+            userRepository.deleteById(Long.parseLong(userId));
             log.info("Successfully deletion of the user with id: {}", userId);
             return true;
         } catch (RuntimeException e) {

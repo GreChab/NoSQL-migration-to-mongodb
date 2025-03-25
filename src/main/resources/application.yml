@@ -1,9 +1,11 @@
 spring:
+  profiles:
+    active: mongo
   jpa:
     properties:
       hibernate:
         format_sql: true
-        generate_statistics: true
+        generate_statistics: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
         cache:
           use_second_level_cache: true
@@ -20,6 +22,15 @@ spring:
     username: postgres
     password: pass
     driver-class-name: org.postgresql.Driver
+
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: ticket_booking
+
+properties:
+  migration_enabled: true
 
 logging:
   level:

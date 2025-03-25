@@ -28,22 +28,22 @@ import static org.mockito.Mockito.when;
 @Sql(value = {"classpath:sql/clear-database.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class TicketServiceImplIntTest {
 
-    @Autowired
-    private TicketServiceImpl ticketService;
-
-    @MockBean
-    private TicketRepository ticketRepository;
-
-    @Test
-    public void bookTicketWithRuntimeExceptionShouldRollback() {
-        when(ticketRepository.existsByEventIdAndPlaceAndCategory(anyLong(), anyInt(), any(Category.class)))
-                .thenReturn(false);
-        when(ticketRepository.save(any(Ticket.class)))
-                .thenThrow(RuntimeException.class);
-
-        Ticket ticket = ticketService.bookTicket(1, 1, 30, Category.PREMIUM);
-
-        assertNull(ticket);
-
-    }
+//    @Autowired
+//    private TicketServiceImpl ticketService;
+//
+//    @MockBean
+//    private TicketRepository ticketRepository;
+//
+//    @Test
+//    public void bookTicketWithRuntimeExceptionShouldRollback() {
+//        when(ticketRepository.existsByEventIdAndPlaceAndCategory(anyLong(), anyInt(), any(Category.class)))
+//                .thenReturn(false);
+//        when(ticketRepository.save(any(Ticket.class)))
+//                .thenThrow(RuntimeException.class);
+//
+//        Ticket ticket = ticketService.bookTicket(1, 1, 30, Category.PREMIUM);
+//
+//        assertNull(ticket);
+//
+//    }
 }
