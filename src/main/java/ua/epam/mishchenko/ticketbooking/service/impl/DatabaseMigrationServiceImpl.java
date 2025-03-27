@@ -45,20 +45,17 @@ public class DatabaseMigrationServiceImpl implements DatabaseMigrationService {
         mongoEvent.setTicketPrice(sqlEvent.getTicketPrice());
         mongoEvent.setDate(sqlEvent.getDate());
         mongoEvent.setTicketPrice(sqlEvent.getTicketPrice());
-        mongoTemplate.insert(mongoEvent, "events");
 
         var mongoTickets = sqlEvent.getTickets().stream()
-                .map(sqlTicket -> createMongoTicket(sqlTicket, mongoEvent))
+                .map(this::createMongoTicket)
                 .toList();
 
-        mongoTemplate.insert(mongoTickets, "tickets");
         mongoEvent.setTickets(mongoTickets);
         return mongoEvent;
     }
 
-    private TicketMongo createMongoTicket(Ticket sqlTicket, EventMongo event) {
+    private TicketMongo createMongoTicket(Ticket sqlTicket) {
         var mongoTicket = new TicketMongo();
-        mongoTicket.setEvent(event);
         mongoTicket.setPlace(sqlTicket.getPlace());
         mongoTicket.setCategory(sqlTicket.getCategory());
 
@@ -75,7 +72,6 @@ public class DatabaseMigrationServiceImpl implements DatabaseMigrationService {
             mongoUserAccount.setMoney(userAccount.get().getMoney());
             mongoUser.setUserAccount(mongoUserAccount);
         }
-        mongoTemplate.insert(mongoUser, "users");
         return mongoTicket;
     }
 }
